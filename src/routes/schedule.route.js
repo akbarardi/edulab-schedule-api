@@ -3,14 +3,17 @@ const router = express.Router();
 const controller = require('../controllers/schedule.controller');
 const apiKey = require('../middlewares/apiKey.middleware');
 const multer = require('multer');
-const path = require('path');
+const fs = require('fs');
 
-const upload = multer({
-    dest: 'tmp/',
-    fileFilter: (_req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, ext === '.xlsx');
+const upload = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const tmpDir = '/tmp';
+        if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+        cb(null, tmpDir);
     },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname);
+    }
 });
 
 router.use(apiKey);
