@@ -5,15 +5,6 @@ require('dotenv').config();
 
 app.use(express.json());
 
-let dbReady = false;
-app.use(async (_req, _res, next) => {
-    if (!dbReady) {
-        await sequelize.sync();
-        dbReady = true;
-    }
-    next();
-});
-
 const scheduleRoutes = require('./routes/schedule.route');
 
 app.use('/api/schedules', scheduleRoutes);

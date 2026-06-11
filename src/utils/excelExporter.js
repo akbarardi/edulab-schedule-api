@@ -1,6 +1,7 @@
 const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
+const supabase = require('../config/supabase');
 
 async function generateRekapExcel(rekapData, start_date, end_date) {
     const workbook = new ExcelJS.Workbook();
@@ -136,12 +137,31 @@ async function generateRekapExcel(rekapData, start_date, end_date) {
     }
 
     const fileName = `rekap_${start_date}_${end_date}.xlsx`;
-    const dir = path.join(process.cwd(), 'public/reports');
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const tmpDir = '/tmp';
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+    const filePath = path.join(tmpDir, fileName);
 
-    const filePath = path.join(dir, fileName);
     await workbook.xlsx.writeFile(filePath);
-    return { fileName };
+
+    const fileBuffer = fs.readFileSync(filePath);
+
+    const { data, error } = await supabase.storage
+        .from('reports')
+        .upload(fileName, fileBuffer, {
+            contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            upsert: true
+        });
+
+    fs.unlinkSync(filePath);
+
+    if (error) {
+        throw new Error(`Gagal mengunggah laporan ke Supabase Storage: ${error.message}`);
+    }
+    const { data: publicUrlData } = supabase.storage
+        .from('reports')
+        .getPublicUrl(fileName);
+
+    return { downloadUrl: publicUrlData.publicUrl };
 }
 
 module.exports = { generateRekapExcel };

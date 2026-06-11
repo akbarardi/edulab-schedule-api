@@ -74,11 +74,7 @@ exports.exportExcel = handle(async (req, res) => {
     if (!start_date || !end_date)
         return res.status(400).json({ error: 'start_date dan end_date wajib diisi' });
 
-    const { fileName } = await service.exportRekapExcel(start_date, end_date);
-
-    const protocol = req.protocol;
-    const host = req.get('host');
-    const downloadUrl = `${protocol}://${host}/public/reports/${fileName}`;
+    const { downloadUrl } = await service.exportRekapExcel(start_date, end_date);
 
     return res.status(200).json({
         message: "Laporan berhasil dibuat",

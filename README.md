@@ -26,7 +26,10 @@ DB_USER=postgres
 DB_PASS=yourpassword
 
 # Konfigurasi database production/cloud (Supabase Connection String)
-DB_URI=
+DB_URI=postgresql://postgres.[id]:[password]@[aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres](https://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres)
+
+SUPABASE_URL=https://[id-proyek-anda].supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 ### 3. Jalankan server
